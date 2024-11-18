@@ -58,7 +58,7 @@ $result = $conn->query($sql);
 
         .navbar h1 {
             color: #fff;
-            font-size: 20px;
+            font-size: 24px;
             margin-bottom: 30px;
         }
 

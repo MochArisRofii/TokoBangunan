@@ -13,7 +13,31 @@ $userId = $_SESSION['IdUser'];
 $username = $_SESSION['Username'];
 $nama = $_SESSION['Nama'];
 
-// Query untuk mengambil data transaksi beserta detail barang
+// Ambil filter dari URL jika ada
+$filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+
+// Menentukan query berdasarkan filter
+$whereClause = ""; // Kondisi filter
+
+switch ($filter) {
+    case 'day':
+        $whereClause = "WHERE DATE(t.Tanggal) = CURDATE()"; // Filter hasil penjualan hari ini
+        break;
+    case 'week':
+        $whereClause = "WHERE t.Tanggal >= CURDATE() - INTERVAL 1 WEEK"; // Hasil penjualan 1 minggu
+        break;
+    case 'month':
+        $whereClause = "WHERE t.Tanggal >= CURDATE() - INTERVAL 1 MONTH"; // Hasil penjualan 1 bulan
+        break;
+    case 'year':
+        $whereClause = "WHERE t.Tanggal >= CURDATE() - INTERVAL 1 YEAR"; // Hasil penjualan 1 tahun
+        break;
+    default:
+        // Jika tidak ada filter, tampilkan semua transaksi
+        break;
+}
+
+// Query untuk mengambil data transaksi beserta detail barang berdasarkan filter
 $sql = "
     SELECT 
         t.IdTransaksi,
@@ -28,6 +52,7 @@ $sql = "
     LEFT JOIN users u ON t.IdUser = u.IdUser
     LEFT JOIN transaksi_item ti ON t.IdTransaksi = ti.IdTransaksi
     LEFT JOIN produk p ON ti.IdProduk = p.IdProduk
+    $whereClause
     ORDER BY t.Tanggal DESC, t.IdTransaksi ASC
 ";
 $result = $conn->query($sql);
@@ -57,8 +82,6 @@ if ($result->num_rows > 0) {
         $dataTransaksi[$idTransaksi]['TotalHargaBarang'] += $row['Subtotal'];
     }
 }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -96,7 +119,7 @@ if ($result->num_rows > 0) {
 
     .navbar h1 {
         color: #fff;
-        font-size: 20px;
+        font-size: 24px;
         margin-bottom: 30px;
     }
 
@@ -173,6 +196,19 @@ if ($result->num_rows > 0) {
     <div class="content">
         <h3>Daftar Transaksi</h3>
 
+        <!-- Filter Form -->
+        <form action="" method="GET">
+            <label for="filter">Filter Transaksi: </label>
+            <select name="filter" id="filter">
+                <option value="day" <?= $filter == 'day' ? 'selected' : ''; ?>>Hasil Penjualan Hari Ini</option>
+                <option value="week" <?= $filter == 'week' ? 'selected' : ''; ?>>Hasil Penjualan 1 Minggu</option>
+                <option value="month" <?= $filter == 'month' ? 'selected' : ''; ?>>Hasil Penjualan 1 Bulan</option>
+                <option value="year" <?= $filter == 'year' ? 'selected' : ''; ?>>Hasil Penjualan 1 Tahun</option>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+
+        <!-- Menampilkan Data Transaksi -->
         <?php if (count($dataTransaksi) > 0): ?>
             <?php foreach ($dataTransaksi as $idTransaksi => $transaksi): ?>
                 <div class="transaksi-container">
@@ -207,11 +243,9 @@ if ($result->num_rows > 0) {
                         </tbody>
                     </table>
                 </div>
-
-
             <?php endforeach; ?>
         <?php else: ?>
-            <p>Tidak ada data transaksi.</p>
+            <p>Tidak ada transaksi untuk periode yang dipilih.</p>
         <?php endif; ?>
     </div>
 </body>
