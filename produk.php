@@ -170,6 +170,7 @@ $result = $conn->query($sql);
         <a href="produk.php">Produk</a>
         <a href="transaksi.php">Transaksi</a>
         <a href="lihat_transaksi.php">Lihat Transaksi</a>
+        <a href="laporan.php">Laporan</a>
         <a href="logout.php">Logout</a>
     </div>
 

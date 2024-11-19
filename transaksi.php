@@ -15,14 +15,12 @@ $nama = $_SESSION['Nama'];
 
 // Proses menambahkan ke keranjang
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['TambahKeKeranjang'])) {
-    // Validasi input
     $idProduk = $_POST['IdProduk'];
     $namaProduk = $_POST['NamaProduk'];
     $harga = $_POST['Harga'];
     $jumlah = $_POST['Jumlah'];
     $subtotal = $harga * $jumlah;
 
-    // Simpan ke session keranjang
     if (!isset($_SESSION['keranjang'])) {
         $_SESSION['keranjang'] = [];
     }
@@ -36,27 +34,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['TambahKeKeranjang']))
     ];
 }
 
+// Proses menghapus item dari keranjang
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['HapusDariKeranjang'])) {
+    $hapusIndex = $_POST['hapusIndex'];
+
+    if (isset($_SESSION['keranjang'][$hapusIndex])) {
+        unset($_SESSION['keranjang'][$hapusIndex]);
+        $_SESSION['keranjang'] = array_values($_SESSION['keranjang']);
+    }
+}
+
 // Menyimpan transaksi ke database
 if (isset($_POST['SimpanTransaksi'])) {
     $idUser = $_SESSION['IdUser'];
     $tanggal = date('Y-m-d H:i:s');
     $totalBayar = array_sum(array_column($_SESSION['keranjang'], 'Subtotal'));
 
-    // Simpan transaksi utama
     $stmt = $conn->prepare("INSERT INTO transaksi (IdUser, Tanggal, TotalBayar) VALUES (?, ?, ?)");
     $stmt->bind_param("isd", $idUser, $tanggal, $totalBayar);
 
     if ($stmt->execute()) {
         $idTransaksi = $stmt->insert_id;
 
-        // Simpan detail transaksi
         $stmtDetail = $conn->prepare("INSERT INTO transaksi_item (IdTransaksi, IdProduk, Jumlah, Subtotal) VALUES (?, ?, ?, ?)");
         foreach ($_SESSION['keranjang'] as $item) {
             $stmtDetail->bind_param("iiid", $idTransaksi, $item['IdProduk'], $item['Jumlah'], $item['Subtotal']);
             $stmtDetail->execute();
         }
 
-        // Bersihkan keranjang
         unset($_SESSION['keranjang']);
         echo "<script>alert('Transaksi berhasil disimpan!');</script>";
     } else {
@@ -157,7 +162,6 @@ $result = $conn->query($sql);
 
         form {
             display: inline;
-            
         }
 
         button[type="submit"] {
@@ -179,9 +183,11 @@ $result = $conn->query($sql);
     <div class="navbar">
         <h1>Toko Bangunan</h1>
         <a href="index.php">Home</a>
+
         <a href="produk.php">Produk</a>
         <a href="transaksi.php">Transaksi</a>
         <a href="lihat_transaksi.php">Lihat Transaksi</a>
+        <a href="laporan.php">Laporan</a>
         <a href="logout.php">Logout</a>
     </div>
 
@@ -236,21 +242,28 @@ $result = $conn->query($sql);
                     <th>Harga</th>
                     <th>Jumlah</th>
                     <th>Subtotal</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
                 if (!empty($_SESSION['keranjang'])) {
-                    foreach ($_SESSION['keranjang'] as $item) {
+                    foreach ($_SESSION['keranjang'] as $index => $item) {
                         echo "<tr>
                             <td>{$item['NamaProduk']}</td>
                             <td>" . number_format($item['Harga'], 0, ',', '.') . "</td>
                             <td>{$item['Jumlah']}</td>
                             <td>" . number_format($item['Subtotal'], 0, ',', '.') . "</td>
+                            <td>
+                                <form method='POST'>
+                                    <input type='hidden' name='hapusIndex' value='{$index}'>
+                                    <button type='submit' name='HapusDariKeranjang'>Hapus</button>
+                                </form>
+                            </td>
                         </tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='4'>Keranjang kosong</td></tr>";
+                    echo "<tr><td colspan='5'>Keranjang kosong</td></tr>";
                 }
                 ?>
             </tbody>
