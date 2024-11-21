@@ -25,7 +25,7 @@ $sqlLaporan = "
 ";
 $resultLaporan = $conn->query($sqlLaporan);
 
-// Data laporan diolah ke dalam array
+// Data laporan transaksi
 $dataLaporan = [];
 if ($resultLaporan->num_rows > 0) {
     while ($row = $resultLaporan->fetch_assoc()) {
@@ -36,6 +36,30 @@ if ($resultLaporan->num_rows > 0) {
         ];
     }
 }
+
+// Query untuk barang paling laku
+$sqlProdukTerlaris = "
+    SELECT p.NamaProduk, SUM(ti.Jumlah) AS TotalJumlah
+    FROM transaksi_item ti
+    INNER JOIN produk p ON ti.IdProduk = p.IdProduk
+    GROUP BY p.IdProduk
+    ORDER BY TotalJumlah DESC
+    LIMIT 1
+";
+$resultProdukTerlaris = $conn->query($sqlProdukTerlaris);
+$produkTerlaris = $resultProdukTerlaris->fetch_assoc();
+
+// Query untuk barang paling tidak laku
+$sqlProdukTidakLaku = "
+    SELECT p.NamaProduk, SUM(ti.Jumlah) AS TotalJumlah
+    FROM transaksi_item ti
+    INNER JOIN produk p ON ti.IdProduk = p.IdProduk
+    GROUP BY p.IdProduk
+    ORDER BY TotalJumlah ASC
+    LIMIT 1
+";
+$resultProdukTidakLaku = $conn->query($sqlProdukTidakLaku);
+$produkTidakLaku = $resultProdukTidakLaku->fetch_assoc();
 ?>
 
 <!DOCTYPE html>
@@ -97,7 +121,8 @@ if ($resultLaporan->num_rows > 0) {
 
         /* Konten utama */
         .container {
-            margin-left: 220px; /* Memberikan ruang untuk navbar */
+            margin-left: 220px;
+            /* Memberikan ruang untuk navbar */
             padding: 20px;
             max-width: 800px;
             margin: 0 auto;
@@ -154,7 +179,7 @@ if ($resultLaporan->num_rows > 0) {
             <thead>
                 <tr>
                     <th>Tanggal</th>
-                    <th>Jumlah Transaksi Sebanyak</th>
+                    <th>Jumlah Transaksi</th>
                     <th>Total Penghasilan</th>
                 </tr>
             </thead>
@@ -172,6 +197,30 @@ if ($resultLaporan->num_rows > 0) {
                         <td colspan="3">Tidak ada data laporan.</td>
                     </tr>
                 <?php endif; ?>
+            </tbody>
+        </table>
+
+        <!-- Laporan Barang Paling Laku dan Tidak Laku -->
+        <h3>Barang Paling Laku dan Tidak Laku</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Jenis Laporan</th>
+                    <th>Nama Barang</th>
+                    <th>Total Jumlah Terjual</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Barang Paling Laku</td>
+                    <td><?= $produkTerlaris['NamaProduk'] ?? 'Tidak ada data' ?></td>
+                    <td><?= $produkTerlaris['TotalJumlah'] ?? '0' ?></td>
+                </tr>
+                <tr>
+                    <td>Barang Paling Tidak Laku</td>
+                    <td><?= $produkTidakLaku['NamaProduk'] ?? 'Tidak ada data' ?></td>
+                    <td><?= $produkTidakLaku['TotalJumlah'] ?? '0' ?></td>
+                </tr>
             </tbody>
         </table>
     </div>
