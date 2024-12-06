@@ -191,6 +191,7 @@ $resultKategori = $conn->query($sqlKategori);
     <div class="navbar">
         <h1>Toko Bangunan</h1>
         <a href="index.php">Home</a>
+        <a href="produk.php">Produk</a>
         <a href="transaksi.php">Transaksi</a>
         <a href="lihat_transaksi.php">Lihat Transaksi</a>
         <a href="logout.php">Logout</a>

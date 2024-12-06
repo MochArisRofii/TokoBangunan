@@ -85,6 +85,8 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaksi</title>
+    <!-- Tambahkan link Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* Gaya halaman */
         * {
@@ -183,7 +185,6 @@ $result = $conn->query($sql);
     <div class="navbar">
         <h1>Toko Bangunan</h1>
         <a href="index.php">Home</a>
-
         <a href="produk.php">Produk</a>
         <a href="transaksi.php">Transaksi</a>
         <a href="lihat_transaksi.php">Lihat Transaksi</a>
@@ -217,12 +218,19 @@ $result = $conn->query($sql);
                             <td>{$row['Stok']}</td>
                             <td>{$row['NamaKategori']}</td>
                             <td>
-                                <form action='' method='POST'>
+                                <form action='' method='POST' style='display: flex; align-items: center;'>
                                     <input type='hidden' name='IdProduk' value='{$row['IdProduk']}'>
                                     <input type='hidden' name='NamaProduk' value='{$row['NamaProduk']}'>
                                     <input type='hidden' name='Harga' value='{$row['Harga']}'>
-                                    <input type='number' name='Jumlah' placeholder='Jumlah' required min='1' max='{$row['Stok']}'>
-                                    <button type='submit' name='TambahKeKeranjang'>Tambah</button>
+                                    <div style='display: flex; align-items: center;'>
+                                        <input type='number' name='Jumlah' placeholder='Jumlah' required min='1' max='{$row['Stok']}' 
+                                        style='padding: 5px; font-size: 14px; width: 80px; border-radius: 4px; border: 1px solid #ccc; margin-right: 10px;'>
+                                        <button type='submit' name='TambahKeKeranjang' 
+                                            style='background-color: #5a67d8; color: white; border: none; padding: 6px 15px; font-size: 14px; 
+                                            cursor: pointer; border-radius: 4px; transition: background-color 0.3s ease;'>
+                                            <i class='fas fa-cart-plus' style='margin-right: 8px;'></i>Tambah
+                                        </button>
+                                    </div>
                                 </form>
                             </td>
                         </tr>";
@@ -255,24 +263,26 @@ $result = $conn->query($sql);
                             <td>{$item['Jumlah']}</td>
                             <td>" . number_format($item['Subtotal'], 0, ',', '.') . "</td>
                             <td>
-                                <form method='POST'>
+                                <form action='' method='POST'>
                                     <input type='hidden' name='hapusIndex' value='{$index}'>
-                                    <button type='submit' name='HapusDariKeranjang'>Hapus</button>
+                                    <button type='submit' name='HapusDariKeranjang' 
+                                        style='background-color: #e53e3e; color: white; border: none; padding: 6px 15px; font-size: 14px; cursor: pointer; border-radius: 4px;'>Hapus</button>
                                 </form>
                             </td>
                         </tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='5'>Keranjang kosong</td></tr>";
+                    echo "<tr><td colspan='5'>Keranjang Anda kosong</td></tr>";
                 }
                 ?>
             </tbody>
         </table>
 
-        <form method="POST">
-            <button type="submit" name="SimpanTransaksi">Simpan Transaksi</button>
+        <?php if (!empty($_SESSION['keranjang'])): ?>
+        <form action="" method="POST">
+            <button type="submit" name="SimpanTransaksi" style="background-color: #48bb78; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;">Selesaikan Transaksi</button>
         </form>
+        <?php endif; ?>
     </div>
 </body>
-
 </html>
