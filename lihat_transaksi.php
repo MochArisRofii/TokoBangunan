@@ -64,6 +64,7 @@ if ($result->num_rows > 0) {
         $idTransaksi = $row['IdTransaksi'];
         if (!isset($dataTransaksi[$idTransaksi])) {
             $dataTransaksi[$idTransaksi] = [
+                'IdTransaksi' => $row['IdTransaksi'], // Menambahkan IdTransaksi
                 'Tanggal' => $row['Tanggal'],
                 'NamaUser' => $row['NamaUser'],
                 'TotalBayar' => $row['TotalBayar'],
@@ -82,6 +83,7 @@ if ($result->num_rows > 0) {
         $dataTransaksi[$idTransaksi]['TotalHargaBarang'] += $row['Subtotal'];
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -94,6 +96,7 @@ if ($result->num_rows > 0) {
     <link rel="stylesheet" href="fontawesome-free-6.7.2-web/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
+
 <style>
     * {
         margin: 0;
@@ -235,79 +238,59 @@ if ($result->num_rows > 0) {
         <h3>Daftar Transaksi</h3>
 
         <!-- Filter Form -->
-        <!-- Filter Form -->
         <form action="" method="GET" style="margin-bottom: 20px;">
             <label for="filter" style="display: flex; align-items: center; font-weight: bold; margin-bottom: 10px;">
                 <span class="fa fa-calendar" style="margin-right: 10px;"></span> Filter Transaksi:
             </label>
             <div style="display: flex; align-items: center;">
                 <select name="filter" id="filter" style="
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 10px;
-            font-size: 14px;
-            background-color: #fff;
-            width: 200px;">
-                    <option value="day" <?= $filter == 'day' ? 'selected' : ''; ?>>Hasil Penjualan Hari Ini</option>
-                    <option value="week" <?= $filter == 'week' ? 'selected' : ''; ?>>Hasil Penjualan 1 Minggu</option>
-                    <option value="month" <?= $filter == 'month' ? 'selected' : ''; ?>>Hasil Penjualan 1 Bulan</option>
-                    <option value="year" <?= $filter == 'year' ? 'selected' : ''; ?>>Hasil Penjualan 1 Tahun</option>
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                    font-size: 14px;
+                    background-color: #fff;
+                    width: 200px;">
+                    <option value="day" <?= $filter == 'day' ? 'selected' : ''; ?>>Hari Ini</option>
+                    <option value="week" <?= $filter == 'week' ? 'selected' : ''; ?>>Minggu Ini</option>
+                    <option value="month" <?= $filter == 'month' ? 'selected' : ''; ?>>Bulan Ini</option>
+                    <option value="year" <?= $filter == 'year' ? 'selected' : ''; ?>>Tahun Ini</option>
+                    <option value="" <?= $filter == '' ? 'selected' : ''; ?>>Semua Transaksi</option>
                 </select>
-                <button type="submit" style="
-            padding: 10px 20px;
-            background-color: #5a67d8;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;">
-                    <span class="fa fa-search" style="margin-right: 5px;"></span> Filter
-                </button>
+                <button type="submit"
+                    style="padding: 10px 15px; background-color: #4a67d8; color: white; border: none; border-radius: 5px;">Terapkan
+                    Filter</button>
             </div>
         </form>
 
+        <?php foreach ($dataTransaksi as $transaksi): ?>
+            <div class="transaksi-container">
+                <h4>Transaksi ID: <?= $transaksi['IdTransaksi'] ?></h4>
+                <p><strong>Tanggal:</strong> <?= date('l, j F Y', strtotime($transaksi['Tanggal'])) ?></p>
+                <p><strong>Nama User:</strong> <?= $transaksi['NamaUser'] ?></p>
+                <p><strong>Total Bayar:</strong> Rp <?= number_format($transaksi['TotalBayar'], 0, ',', '.') ?></p>
 
-        <!-- Menampilkan Data Transaksi -->
-        <?php if (count($dataTransaksi) > 0): ?>
-            <?php foreach ($dataTransaksi as $idTransaksi => $transaksi): ?>
-                <div class="transaksi-container">
-                    <h4>Transaksi #<?= $idTransaksi ?></h4>
-                    <p>
-                        <strong>Tanggal:</strong> <?= date('d-m-Y', strtotime($transaksi['Tanggal'])) ?><br>
-                        <strong>User:</strong> <?= $transaksi['NamaUser'] ?: "Tidak Diketahui" ?><br>
-                        <strong>Total Bayar:</strong> Rp<?= number_format($transaksi['TotalBayar'], 0, ',', '.') ?>
-                    </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Jumlah</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($transaksi['Barang'] as $barang): ?>
+                            <tr>
+                                <td><?= $barang['NamaProduk'] ?></td>
+                                <td><?= $barang['Jumlah'] ?></td>
+                                <td>Rp <?= number_format($barang['Subtotal'], 0, ',', '.') ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endforeach; ?>
 
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nama Produk</th>
-                                <th>Jumlah</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($transaksi['Barang'] as $barang): ?>
-                                <tr>
-                                    <td><?= $barang['NamaProduk'] ?: "Produk Tidak Diketahui" ?></td>
-                                    <td><?= $barang['Jumlah'] ?></td>
-                                    <td>Rp<?= number_format($barang['Subtotal'], 0, ',', '.') ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            <!-- Baris Total Harga Barang -->
-                            <tr>
-                                <td colspan="2" style="text-align: right; font-weight: bold;">Total Harga Barang</td>
-                                <td>Rp<?= number_format($transaksi['TotalHargaBarang'], 0, ',', '.') ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>Tidak ada transaksi untuk periode yang dipilih.</p>
-        <?php endif; ?>
     </div>
 </body>
 
