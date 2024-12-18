@@ -91,6 +91,7 @@ if ($result->num_rows > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Transaksi</title>
+    <link rel="stylesheet" href="fontawesome-free-6.7.2-web/css/all.min.css">
 </head>
 <style>
     * {
@@ -198,16 +199,39 @@ if ($result->num_rows > 0) {
         <h3>Daftar Transaksi</h3>
 
         <!-- Filter Form -->
-        <form action="" method="GET">
-            <label for="filter">Filter Transaksi: </label>
-            <select name="filter" id="filter">
-                <option value="day" <?= $filter == 'day' ? 'selected' : ''; ?>>Hasil Penjualan Hari Ini</option>
-                <option value="week" <?= $filter == 'week' ? 'selected' : ''; ?>>Hasil Penjualan 1 Minggu</option>
-                <option value="month" <?= $filter == 'month' ? 'selected' : ''; ?>>Hasil Penjualan 1 Bulan</option>
-                <option value="year" <?= $filter == 'year' ? 'selected' : ''; ?>>Hasil Penjualan 1 Tahun</option>
-            </select>
-            <button type="submit">Filter</button>
+        <!-- Filter Form -->
+        <form action="" method="GET" style="margin-bottom: 20px;">
+            <label for="filter" style="display: flex; align-items: center; font-weight: bold; margin-bottom: 10px;">
+                <span class="fa fa-calendar" style="margin-right: 10px;"></span> Filter Transaksi:
+            </label>
+            <div style="display: flex; align-items: center;">
+                <select name="filter" id="filter" style="
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 14px;
+            background-color: #fff;
+            width: 200px;">
+                    <option value="day" <?= $filter == 'day' ? 'selected' : ''; ?>>Hasil Penjualan Hari Ini</option>
+                    <option value="week" <?= $filter == 'week' ? 'selected' : ''; ?>>Hasil Penjualan 1 Minggu</option>
+                    <option value="month" <?= $filter == 'month' ? 'selected' : ''; ?>>Hasil Penjualan 1 Bulan</option>
+                    <option value="year" <?= $filter == 'year' ? 'selected' : ''; ?>>Hasil Penjualan 1 Tahun</option>
+                </select>
+                <button type="submit" style="
+            padding: 10px 20px;
+            background-color: #5a67d8;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;">
+                    <span class="fa fa-search" style="margin-right: 5px;"></span> Filter
+                </button>
+            </div>
         </form>
+
 
         <!-- Menampilkan Data Transaksi -->
         <?php if (count($dataTransaksi) > 0): ?>
