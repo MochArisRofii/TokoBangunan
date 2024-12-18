@@ -50,13 +50,15 @@ if (isset($_GET['id'])) {
 $sqlKategori = "SELECT * FROM kategori";
 $resultKategori = $conn->query($sqlKategori);
 ?>
-    
+
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="fontawesome-free-6.7.2-web/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <title>Edit Produk</title>
     <style>
         /* Basic reset */
@@ -67,121 +69,160 @@ $resultKategori = $conn->query($sqlKategori);
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f5f7fa;
             color: #333;
-            display: flex;
         }
 
-        /* Navbar styling */
+        /* Navbar Vertikal */
         .navbar {
-            width: 200px;
-            background-color: #5a67d8;
-            height: 100vh;
+            width: 250px;
+            background: linear-gradient(135deg, #4a67d8, #667eea);
             padding: 20px;
-            position: fixed;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            position: fixed;
+            height: 100%;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
         .navbar h1 {
             color: #fff;
-            font-size: 20px;
+            font-size: 22px;
+            font-weight: bold;
             margin-bottom: 30px;
+            text-align: center;
+            width: 100%;
         }
 
         .navbar a {
+            display: flex;
+            align-items: center;
             color: #fff;
             text-decoration: none;
-            padding: 10px 15px;
+            padding: 12px 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
             width: 100%;
-            background-color: #4a5ab8;
-            border-radius: 5px;
-            margin: 5px 0;
-            transition: background-color 0.3s;
-            text-align: left;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .navbar a i {
+            margin-right: 10px;
+            font-size: 16px;
+            transition: transform 0.3s ease;
         }
 
         .navbar a:hover {
-            background-color: #333;
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .navbar a:hover i {
+            transform: scale(1.2);
         }
 
         /* Main content styling */
         .content {
-            margin-left: 220px;
+            margin-left: 250px;
             /* Offset for the navbar */
             padding: 20px;
-            width: calc(100% - 220px);
+            width: calc(100% - 250px);
         }
 
         h3 {
             color: #333;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         form {
+            width: 50%;
+            /* Lebar form lebih besar untuk tampilan lebih leluasa */
+            margin: 20px auto;
             background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
-        label {
-            font-size: 16px;
-            margin-bottom: 8px;
+        /* Styling untuk label */
+        form label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
         }
 
+        /* Styling untuk input dan select */
         input,
         select {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 12px;
+            margin-bottom: 20px;
+            /* Jarak antar elemen input */
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
         }
 
+        /* Efek saat input/ select difokuskan */
+        input:focus,
+        select:focus {
+            border-color: #5a67d8;
+            background-color: #fff;
+        }
+
+        /* Styling untuk button submit */
         button {
-            width: 100%;
-            padding: 10px;
-            background-color: #5a67d8;
+            padding: 12px;
+            background-color: #4a67d8;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #4a5ab8;
+            background-color: #3b56b8;
         }
 
-        /* Table styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        /* Styling untuk select kategori */
+        select {
+            -webkit-appearance: none;
+            /* Menghilangkan default arrow pada select di beberapa browser */
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('https://img.icons8.com/ios-filled/50/000000/chevron-down.png');
+            /* Ikon dropdown */
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+        }
+
+        .logout-button {
             margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #5a67d8;
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #e53e3e;
             color: #fff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
         }
 
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        tr:hover {
-            background-color: #ddd;
+        .logout-button:hover {
+            background-color: #c53030;
         }
     </style>
 </head>
@@ -190,11 +231,12 @@ $resultKategori = $conn->query($sqlKategori);
     <!-- Navbar -->
     <div class="navbar">
         <h1>Toko Bangunan</h1>
-        <a href="index.php">Home</a>
-        <a href="produk.php">Produk</a>
-        <a href="transaksi.php">Transaksi</a>
-        <a href="lihat_transaksi.php">Lihat Transaksi</a>
-        <a href="logout.php">Logout</a>
+        <a href="index.php"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="produk.php"><i class="fa-solid fa-screwdriver-wrench"></i> Produk</a>
+        <a href="transaksi.php"><i class="fa-solid fa-cart-plus"></i> Transaksi</a>
+        <a href="lihat_transaksi.php"><i class="fa-solid fa-eye"></i> Lihat Transaksi</a>
+        <a href="laporan.php"><i class="fa-solid fa-square-poll-horizontal"></i> Laporan</a>
+        <a href="logout.php" class="logout-button"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
 
     <!-- Main content -->
