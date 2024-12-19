@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['IdUser'] = $user['IdUser']; // Simpan ID pengguna di session
             $_SESSION['Username'] = $user['Username']; // Simpan Username
             $_SESSION['Nama'] = $user['Nama']; // Simpan Nama pengguna
-
+            $_SESSION['NamaUsers'] = $user['NamaUsers']; // Simpan Nama Users
             // Redirect ke halaman index setelah login sukses
             header("Location: index.php");
             exit();

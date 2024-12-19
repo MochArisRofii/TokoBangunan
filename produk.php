@@ -13,6 +13,13 @@ $userId = $_SESSION['IdUser'];
 $username = $_SESSION['Username'];
 $nama = $_SESSION['Nama'];
 
+// Memastikan nama pengguna ada dalam sesi
+if (isset($_SESSION['NamaUsers'])) {
+    $NamaUsers = $_SESSION['NamaUsers'];
+} else {
+    // Jika 'Name' tidak ada dalam session, bisa gunakan nama yang sudah ada
+    $NamaUsers = $nama;
+}
 // Query untuk menampilkan produk beserta kategori
 $sql = "
     SELECT produk.IdProduk, produk.NamaProduk, produk.Deskripsi, produk.Harga, produk.Stok, kategori.NamaKategori
@@ -194,12 +201,55 @@ $result = $conn->query($sql);
         .logout-button:hover {
             background-color: #c53030;
         }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            /* Untuk tata letak vertikal */
+            align-items: center;
+            /* Meratakan ke tengah horizontal */
+            justify-content: flex-start;
+            /* Mulai dari atas */
+            height: 100%;
+            /* Pastikan menggunakan seluruh tinggi kontainer */
+            padding-top: 20px;
+            /* Jarak dari atas */
+        }
+
+        /* Gaya untuk tata letak user-info */
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Meratakan elemen ke tengah */
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Gaya untuk foto pengguna */
+        .user-photo {
+            width: 100px;
+            /* Foto lebih besar */
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            object-fit: cover;
+            border: 2px solid #fff;
+            /* Bingkai putih */
+        }
+
+        /* Gaya untuk username */
+        .username {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
     <!-- Navbar -->
-    <div class="navbar">
+    <div class="navbar container">
         <h1>Toko Bangunan</h1>
         <a href="index.php"><i class="fa-solid fa-house"></i> Home</a>
         <a href="produk.php"><i class="fa-solid fa-screwdriver-wrench"></i> Produk</a>
@@ -207,6 +257,10 @@ $result = $conn->query($sql);
         <a href="lihat_transaksi.php"><i class="fa-solid fa-eye"></i> Lihat Transaksi</a>
         <a href="laporan.php"><i class="fa-solid fa-square-poll-horizontal"></i> Laporan</a>
         <a href="logout.php" class="logout-button"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        <div class="user-info">
+            <img src="./image/foto.jpeg" alt="Foto User" class="user-photo">
+            <span class="username"><?php echo htmlspecialchars($NamaUsers); ?></span>
+        </div>
     </div>
 
     <!-- Main content -->
