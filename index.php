@@ -50,7 +50,7 @@ if ($resultProduk) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Selamat Datang di Toko Bangunan</title>
     <link rel="stylesheet" href="fontawesome-free-6.7.2-web/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Tambahkan Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         /* Reset dasar */
@@ -64,6 +64,58 @@ if ($resultProduk) {
             font-family: 'Poppins', Arial, sans-serif;
             background-color: #f5f7fa;
             color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+
+        .navbar.dark-mode {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+        }
+
+        .dark-mode .section {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+
+        .dark-mode .section h2,
+        .dark-mode .section h3,
+        .dark-mode table td {
+            color: #e2e8f0;
+        }
+
+        .dark-mode table th {
+            background-color: rgb(31, 31, 31);
+            color: #e2e8f0;
+        }
+
+        .toggle-button {
+            padding: 12px 16px;
+            background-color: #4a67d8;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            font-size: 22px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-left: auto;
+        }
+
+        .toggle-button:hover {
+            background-color: #5a80f0;
+            transform: scale(1.1);
+        }
+
+        .toggle-button i {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-button.dark-mode i {
+            transform: rotate(180deg);
         }
 
         /* Navbar Vertikal */
@@ -148,7 +200,6 @@ if ($resultProduk) {
             max-width: 800px;
         }
 
-        /* Tabel */
         table {
             width: 100%;
             margin-top: 20px;
@@ -168,19 +219,10 @@ if ($resultProduk) {
             font-weight: bold;
         }
 
-        table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        table tr:hover {
-            background-color: #eef1f9;
-        }
-
         table td {
             color: #555;
         }
 
-        /* Tombol Logout */
         .logout-button {
             margin-top: 20px;
             display: inline-block;
@@ -197,44 +239,32 @@ if ($resultProduk) {
             background-color: #c53030;
         }
 
-        /* Tambahkan gaya ini ke kontainer induk */
         .container {
             display: flex;
             flex-direction: column;
-            /* Untuk tata letak vertikal */
             align-items: center;
-            /* Meratakan ke tengah horizontal */
             justify-content: flex-start;
-            /* Mulai dari atas */
             height: 100%;
-            /* Pastikan menggunakan seluruh tinggi kontainer */
             padding-top: 20px;
-            /* Jarak dari atas */
         }
 
-        /* Gaya untuk tata letak user-info */
         .user-info {
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Meratakan elemen ke tengah */
             text-align: center;
             margin-top: 20px;
         }
 
-        /* Gaya untuk foto pengguna */
         .user-photo {
             width: 100px;
-            /* Foto lebih besar */
             height: 100px;
             border-radius: 50%;
             margin-bottom: 10px;
             object-fit: cover;
             border: 2px solid #fff;
-            /* Bingkai putih */
         }
 
-        /* Gaya untuk username */
         .username {
             color: #fff;
             font-size: 18px;
@@ -246,7 +276,13 @@ if ($resultProduk) {
 <body>
     <!-- Navbar -->
     <div class="navbar container">
-        <h1>Toko Bangunan</h1>
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <h1>Toko Bangunan</h1>
+            <!-- Tombol Dark Mode -->
+            <button class="toggle-button" onclick="toggleDarkMode()">
+                <i id="mode-icon" class="fa-solid fa-sun"></i>
+            </button>
+        </div>
         <a href="index.php"><i class="fa-solid fa-house"></i> Home</a>
         <a href="produk.php"><i class="fa-solid fa-screwdriver-wrench"></i> Produk</a>
         <a href="transaksi.php"><i class="fa-solid fa-cart-plus"></i> Transaksi</a>
@@ -258,7 +294,6 @@ if ($resultProduk) {
             <span class="username"><?php echo htmlspecialchars($NamaUsers); ?></span>
         </div>
     </div>
-
 
     <!-- Konten utama -->
     <div class="main-content">
@@ -293,35 +328,71 @@ if ($resultProduk) {
         </div>
     </div>
 
-    <!-- Script untuk membuat grafik dengan Chart.js -->
     <script>
-        // Data dari PHP
-        const produk = <?php echo json_encode($produk); ?>; // Nama Produk
-        const stok = <?php echo json_encode($stok); ?>;     // Jumlah Stok
+        const produk = <?php echo json_encode($produk); ?>;
+        const stok = <?php echo json_encode($stok); ?>;
 
-        // Konfigurasi Chart.js
         const ctx = document.getElementById('produkChart').getContext('2d');
-        const produkChart = new Chart(ctx, {
-            type: 'bar', // Tipe grafik batang (bar)
+        const chart = new Chart(ctx, {
+            type: 'bar',
             data: {
-                labels: produk, // Nama produk sebagai label
+                labels: produk,
                 datasets: [{
-                    label: 'Jumlah Stok Produk',
-                    data: stok, // Jumlah stok produk
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)', // Warna latar belakang batang
-                    borderColor: 'rgba(75, 192, 192, 1)', // Warna batas batang
+                    label: 'Jumlah Stok',
+                    data: stok,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 99, 132, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
                     borderWidth: 1
                 }]
             },
             options: {
-                responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true // Mulai dari 0 di sumbu Y
+                        beginAtZero: true
                     }
                 }
             }
         });
+    </script>
+
+    <script>
+        function loadDarkModePreference() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.navbar').classList.add('dark-mode');
+                document.getElementById('mode-icon').classList.remove('fa-sun');
+                document.getElementById('mode-icon').classList.add('fa-moon');
+            }
+        }
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const navbar = document.querySelector('.navbar');
+            const icon = document.getElementById('mode-icon');
+            const isDarkMode = body.classList.toggle('dark-mode');
+            navbar.classList.toggle('dark-mode');
+
+            // Ubah ikon sesuai mode
+            if (isDarkMode) {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+
+            // Simpan preferensi mode ke localStorage
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        loadDarkModePreference();  // Load preferensi saat halaman dimuat
     </script>
 </body>
 
